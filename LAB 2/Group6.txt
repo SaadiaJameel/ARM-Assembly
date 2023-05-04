@@ -1,0 +1,73 @@
+@ ARM Assembly - lab 2
+@ Group Number :
+
+        .text   @ instruction memory
+        .global main
+main:
+        @ stack handling, will discuss later
+        @ push (store) lr to the stack
+        sub sp, sp, #4
+        str lr, [sp, #0]
+
+        @ load values
+
+        @ Write YOUR CODE HERE
+
+        @       Sum = 0;
+        @       for (i=0;i<10;i++){
+        @                       for(j=5;j<15;j++){
+        @                               if(i+j<10) sum+=i*2
+        @                               else sum+=(i&j);
+        @                       }
+        @       }
+        @ Put final sum to r5
+
+
+        @ ---------------------
+
+        @ Temporary register r0 is used to store the value i
+        @ Temporary register r1 is used to store the value j
+        @ Store the addition value in r2
+        @ Store i&j in r4
+        @ Store "sum" in register r5
+
+        MOV r5, #0                                              @ Value initialization for sum
+        MOV r0, #0                                              @ Value initialization for i
+
+        LoopOuter:                                              @ The branch for the outer for loop
+
+                CMP r0, #10                                     @ Check whether i < 10
+                BEQ Exit                                        @ When i == 10, branch to the "Exit" branch
+                MOV r1, #5                                      @ For each interation assign j = 5
+
+                InnerLoop:                                      @ The branch for the innerloop
+
+                        CMP r1, #15                             @ Check whether j < 15
+                        ADDEQ r0, r0, #1                        @ When j = 15, increment the outer loop index, i by 1
+                        BEQ LoopOuter                           @ When j = 15, leave the innerloop and branch to the outerloop
+
+                        ADD r2, r0, r1                          @ If j < 15, store i+j in register r4
+
+                        CMP r2, #10                             @ Compare i+j with the immediate operand 10
+                        ADDLT r5, r5, r0, LSL #1                @ If i+j < 10 calculate the sum
+                        ADDLT r1, r1, #1                        @ If i+j < 10 increment i by 1
+                        BLT InnerLoop                           @ Brach back to the innerloop
+
+                        AND r4, r0, r1                          @ If i+j >= 10, perform the AND operation on i and j
+                        ADD r5, r5, r4                          @ Increment j by 1
+
+                        ADD r1, r1, #1                          @ Increment j by 1
+                        B InnerLoop                             @ Branch back to the innerloop
+
+
+        Exit:                                                   @ The Exit branch
+
+        @ ---------------------
+
+
+        @ load aguments and print
+        ldr r0, =format
+        mov r1, r5
+        bl printf
+        .data   @ data memory
+format: .asciz "The Answer is %d (Expect 300 if correct)\n"
